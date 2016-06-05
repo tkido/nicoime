@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+  "log"
 	"os"
 )
 
@@ -14,8 +15,7 @@ func main() {
 func readLines(path string) []string {
 	f, err := os.Open(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "File \"%s\" could not read: %v\n", path, err)
-		os.Exit(1)
+    log.Fatal(err)
 	}
 	defer f.Close()
 
@@ -24,8 +24,8 @@ func readLines(path string) []string {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	if serr := scanner.Err(); serr != nil {
-		fmt.Fprintf(os.Stderr, "File %s scan error: %v\n", path, serr)
+	if err := scanner.Err(); err != nil {
+    log.Fatal(err)
 	}
 
 	return lines
