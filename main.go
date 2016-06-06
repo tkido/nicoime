@@ -3,19 +3,44 @@ package main
 import (
 	"bufio"
 	"fmt"
-  "io"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"regexp"
 )
 
 func main() {
-	lines := readLines("initials.txt")
-	fmt.Printf("lines: %v\n", lines)
+	makeInitials()
+	//lines := readLines("initials.txt")
 
-  url := fmt.Sprintf("http://dic.nicovideo.jp/m/yp/a/%s/1-", lines[0])
-  fmt.Println(url)
-  download(url)
+	//url := fmt.Sprintf("http://dic.nicovideo.jp/m/yp/a/%s/1-", lines[0])
+	//download(url)
+}
+
+func makeInitials() {
+	res, err := http.Get("http://dic.nicovideo.jp/m/a/a")
+	if err != nil {
+		log.Fatal(err)
+	}
+	f, err := os.Create("initials.txt")
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	scanner := bufio.NewScanner(res.Body)
+	re := regexp.MustCompile(`<a href="/m/yp/a/(.*?)/1-">\((\d*?)\)</a></td>`)
+	for scanner.Scan() {
+		ms := re.FindStringSubmatch(scanner.Text())
+		if ms != nil {
+			char, _ := url.QueryUnescape(ms[1])
+			io.WriteString(f, fmt.Sprintf("%s,%s\n", char, ms[2]))
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func readLines(path string) []string {
@@ -42,14 +67,14 @@ func download(url string) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-    f, err := os.Create("html/a.html")
-    defer f.Close()
-    if err != nil {
-      log.Fatal(err)
-    }
-    _, err1 := io.Copy(f, res.Body)
-    if err1 != nil {
-      log.Fatal(err1)
-    }
-  }
+		f, err := os.Create("html/a.html")
+		defer f.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err1 := io.Copy(f, res.Body)
+		if err1 != nil {
+			log.Fatal(err1)
+		}
+	}
 }
