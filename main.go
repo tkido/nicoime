@@ -9,14 +9,15 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
-func main() {
-	makeInitials()
-	//lines := readLines("initials.txt")
+const pageUnit = 50
 
-	//url := fmt.Sprintf("http://dic.nicovideo.jp/m/yp/a/%s/1-", lines[0])
-	//download(url)
+func main() {
+	//makeInitials()
+	download(17)
 }
 
 func makeInitials() {
@@ -43,38 +44,47 @@ func makeInitials() {
 	}
 }
 
-func readLines(path string) []string {
-	f, err := os.Open(path)
+func readInitials() ([]string, []int) {
+	f, err := os.Open("initials.txt")
+	defer f.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
-
-	lines := make([]string, 0, 100)
+	initials := make([]string, 0, 85)
+	limits := make([]int, 0, 85)
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		ss := strings.Split(scanner.Text(), ",")
+		initials = append(initials, ss[0])
+		i, _ := strconv.Atoi(ss[1])
+		limits = append(limits, (i-1)/pageUnit)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-
-	return lines
+	return initials, limits
 }
 
-func download(url string) {
-	res, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		f, err := os.Create("html/a.html")
-		defer f.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err1 := io.Copy(f, res.Body)
-		if err1 != nil {
-			log.Fatal(err1)
+func download(hour int) {
+	is, ls := readInitials()
+	for i := hour * 4; i < hour*4+4; i++ {
+		for j := 0; j <= ls[i]; j++ {
+			num := j*pageUnit + 1
+			url := fmt.Sprintf("http://dic.nicovideo.jp/m/yp/a/%s/%d-", url.QueryEscape(is[i]), num)
+			path := fmt.Sprintf("html/%02d_%06d.html", i, num)
+			res, err := http.Get(url)
+			if err != nil {
+				log.Fatal(err)
+			}
+			f, err := os.Create(path)
+			defer f.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err1 := io.Copy(f, res.Body)
+			if err1 != nil {
+				log.Fatal(err1)
+			}
 		}
 	}
 }
