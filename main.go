@@ -16,7 +16,7 @@ import (
 const pageUnit = 50
 
 func main() {
-	//makeInitials()
+	makeInitials()
 	download(17)
 }
 
@@ -71,7 +71,7 @@ func download(hour int) {
 		for j := 0; j <= ls[i]; j++ {
 			num := j*pageUnit + 1
 			url := fmt.Sprintf("http://dic.nicovideo.jp/m/yp/a/%s/%d-", url.QueryEscape(is[i]), num)
-			path := fmt.Sprintf("html/%02d_%06d.html", i, num)
+			path := fmt.Sprintf("data/%02d_%06d.html", i, num)
 			res, err := http.Get(url)
 			if err != nil {
 				log.Fatal(err)
