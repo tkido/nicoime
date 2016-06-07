@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -13,11 +14,29 @@ import (
 	"strings"
 )
 
+var (
+	initFlag  bool
+	buildFlag bool
+	hourFlag  int
+)
+
+func init() {
+	flag.BoolVar(&initFlag, "i", false, "make initials.txt")
+	flag.BoolVar(&buildFlag, "b", false, "build")
+	flag.IntVar(&hourFlag, "h", 18, "hour")
+	flag.Parse()
+}
+
 const pageUnit = 50
 
 func main() {
-	makeInitials()
-	download(17)
+	if initFlag {
+		makeInitials()
+	}
+	download(hourFlag)
+	if buildFlag {
+		build()
+	}
 }
 
 func makeInitials() {
@@ -87,4 +106,8 @@ func download(hour int) {
 			}
 		}
 	}
+}
+
+func build() {
+	fmt.Println("build!!")
 }
