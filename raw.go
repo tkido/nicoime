@@ -13,7 +13,7 @@ import (
 func getRawData(cs []Capital) (err error) {
 	wg := sync.WaitGroup{}
 	q := make(chan ZB, runtime.NumCPU())
-	ch := make(chan Raw)
+	ch := make(chan Tran)
 	for _, c := range cs {
 		for i := 1; i <= c.Count; i += unit {
 			url := fmt.Sprintf(`https://dic.nicovideo.jp/m/yp/a/%s/%d-`, url.QueryEscape(c.Label), i)
@@ -34,19 +34,12 @@ func getRawData(cs []Capital) (err error) {
 		close(ch)
 	}()
 	for r := range ch {
-		rawMap[r.Word] = r
+		raws[r.Word] = r
 	}
 	return
 }
 
-// Raw is raw transformation data
-type Raw struct {
-	Word     string
-	Read     string
-	Redirect bool
-}
-
-func download(url string, ch chan Raw) (err error) {
+func download(url string, ch chan Tran) (err error) {
 	resp, err := Get(url)
 	if err != nil {
 		return
@@ -70,7 +63,7 @@ func download(url string, ch chan Raw) (err error) {
 
 		redirect := strings.HasSuffix(lines[2], `(リダイレクト)`)
 
-		ch <- Raw{word, read, redirect}
+		ch <- Tran{word, read, redirect}
 	})
 	return
 }

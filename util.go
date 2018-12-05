@@ -35,13 +35,13 @@ func Get(url string) (resp *http.Response, err error) {
 }
 
 // Save data
-func Save(path string) (err error) {
+func Save(path string, data Trans) (err error) {
 	f, err := os.Create(path)
 	if err != nil {
 		return
 	}
 	defer f.Close()
-	for _, v := range rawMap {
+	for _, v := range data {
 		f.WriteString(v.Word)
 		f.WriteString("\t")
 		f.WriteString(v.Read)
@@ -53,7 +53,7 @@ func Save(path string) (err error) {
 }
 
 // Load data
-func Load(path string) (err error) {
+func Load(path string, data *Trans) (err error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return
@@ -66,8 +66,8 @@ func Load(path string) (err error) {
 		if err != nil {
 			return err
 		}
-		r := Raw{ss[0], ss[1], redirect}
-		rawMap[r.Word] = r
+		r := Tran{ss[0], ss[1], redirect}
+		(*data)[r.Word] = r
 	}
 	return
 }
