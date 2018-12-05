@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -74,15 +75,28 @@ func process(raws Trans) (ts Trans, err error) {
 }
 
 func filter(r Tran) (t Tran, ok bool) {
-	if isNgLength(r) || isNgSuffix(r) || isNgRead(r) {
+	if isNgRegex(r) || isNgLength(r) || isNgSuffix(r) || isNgRead(r) {
 		return r, false
 	}
 	return r, true
 }
 
+var (
+	reDate   = regexp.MustCompile(`^[平成昭和一二三四五六七八九十0-9\.:年月日]+$`)
+	reDaikai = regexp.MustCompile(`第.*?回`)
+)
+
+func isNgRegex(r Tran) bool {
+	if reDaikai.MatchString(r.Word) || reDate.MatchString(r.Word) {
+		fmt.Println(r.Word)
+		return true
+	}
+	return false
+}
+
 func isNgLength(r Tran) bool {
 	if len([]rune(r.Read)) <= 3 {
-		fmt.Println(r.Word)
+		// fmt.Println(r.Word)
 		return true
 	}
 	return false
