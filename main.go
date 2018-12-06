@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"strings"
 	"sync"
 )
 
@@ -74,24 +73,25 @@ func process(raws Trans) (ts Trans, err error) {
 }
 
 func filter(r Tran) (t Tran, ok bool) {
-	if isNgRegex(r) || isNgLength(r) || isNgSuffix(r) || isNgRead(r) {
+	if isNg(r) {
 		return r, false
 	}
-	r.Word = strings.Replace(r.Word, "シリーズ", "", 1)
-	r.Read = strings.Replace(r.Read, "シリーズ", "", 1)
 	return r, true
 }
 
-type Pair struct {
-	From, To string
-}
+// type Pair struct {
+// 	From, To string
+// }
 
-var (
-	pairsForWord = []Pair{
-		{"シリーズ", ""},
-	}
-)
+// var (
+// 	pairsForWord = []Pair{
+// 		{"シリーズ", ""},
+// 	}
+// )
 
-func replaceWordString(s string) string {
+// func replaceWordString(s string) string {
+// 	return ""
+// }
 
-}
+// 括弧（半角・全角）に「生主」「生放送主」が入っている場合、
+// 読みに「

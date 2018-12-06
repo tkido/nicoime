@@ -6,6 +6,28 @@ import (
 	"strings"
 )
 
+func isNg(r Tran) (ok bool) {
+	if isNgLength(r) || isNgSuffix(r) || isNgRead(r) || isNgSubStr(r) || isNgRegex(r) {
+		return false
+	}
+	return true
+}
+
+var ngSubStrs = []string{
+	`生主`,
+	`生放送主`,
+}
+
+func isNgSubStr(r Tran) bool {
+	for _, sub := range ngSubStrs {
+		if strings.Contains(r.Word, sub) {
+			fmt.Println(r.Word)
+			return true
+		}
+	}
+	return false
+}
+
 var (
 	reDate   = regexp.MustCompile(`^[平成昭和一二三四五六七八九十0-9\.:年月日]+$`)
 	reDaikai = regexp.MustCompile(`第.*?回`)
@@ -13,20 +35,22 @@ var (
 
 func isNgRegex(r Tran) bool {
 	if reDaikai.MatchString(r.Word) || reDate.MatchString(r.Word) {
-		fmt.Println(r.Word)
-		return true
-	}
-	return false
-}
-
-func isNgLength(r Tran) bool {
-	if len([]rune(r.Read)) <= 3 {
 		// fmt.Println(r.Word)
 		return true
 	}
 	return false
 }
 
+// 読みが3文字以下の項目を排除
+func isNgLength(r Tran) bool {
+	if len([]rune(r.Read)) <= 3 {
+		fmt.Println(r.Word)
+		return true
+	}
+	return false
+}
+
+// IME辞書というより事典っぽい項目の排除
 var ngSuffixes = []string{
 	`リンク`,
 	`リンク集`,
@@ -45,6 +69,7 @@ func isNgSuffix(r Tran) bool {
 	return false
 }
 
+// 読み遊びの排除
 var ngReads = []string{
 	`ダイジョウブカ`,
 	`ミエタ`,
