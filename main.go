@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -82,17 +83,56 @@ func filter(r Tran) (t Tran, ok bool) {
 }
 
 func convert(r Tran) Tran {
-	// "シリーズ"の除去
+	// 「シリーズ」の除去
 	if strings.HasSuffix(r.Word, `シリーズ`) {
-		fmt.Println(r)
 		r.Word = r.Word[:len(r.Word)-12]
 		if strings.HasSuffix(r.Read, `シリーズ`) {
 			r.Read = r.Read[:len(r.Read)-12]
 		}
-		fmt.Println(r)
+	}
+	// 「有限会社」等の除去
+	word := r.Word
+	word = strings.Replace(word, `有限会社`, ``, 1)
+	word = strings.Replace(word, `(有)`, ``, 1)
+	word = strings.Replace(word, `（有）`, ``, 1)
+	if word != r.Word {
+		r.Read = strings.Replace(r.Read, `ユウゲンガイシャ`, ``, 1)
+	}
+	r.Word = word
+	// 「株式会社」等の除去
+	word = strings.Replace(word, `株式会社`, ``, 1)
+	word = strings.Replace(word, `(株)`, ``, 1)
+	word = strings.Replace(word, `（株）`, ``, 1)
+	if word != r.Word {
+		switch {
+		case strings.Contains(r.Read, `カブシキガイシャ`):
+			r.Read = strings.Replace(r.Read, `カブシキガイシャ`, ``, 1)
+		case strings.HasPrefix(r.Read, `マエカブ`):
+			r.Read = strings.Replace(r.Read, `マエカブ`, ``, 1)
+		case strings.HasSuffix(r.Read, `カッコカブ`):
+			r.Read = strings.Replace(r.Read, `カッコカブ`, ``, 1)
+		case strings.HasSuffix(r.Read, `カブ`):
+			r.Read = strings.Replace(r.Read, `カブ`, ``, 1)
+		}
+	}
+	r.Word = word
+	// 「カッコ……カッコトジル」等の除去
+	if reParenKana.MatchString(r.Read) {
+		if !reParenKanaNg.MatchString(r.Read) {
+			fmt.Println(r)
+			r.Read = reParenKana.ReplaceAllString(r.Read, ``)
+			r.Word = reParen.ReplaceAllString(r.Word, ``)
+			fmt.Println(r)
+		}
 	}
 	return r
 }
+
+var (
+	reParen       = regexp.MustCompile(`(\(|（).*?(\)|）)$`)
+	reParenKana   = regexp.MustCompile(`カッコ(.*?)(カッコ(トジル?)?)?$`)
+	reParenKanaNg = regexp.MustCompile(`カッコ(イイ|ワルイ|ク|ヨス)(.*?)(カッコ(トジル?)?)?$`)
+)
 
 // type Pair struct {
 // 	From, To string
