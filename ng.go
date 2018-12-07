@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
 
 func isNg(r Tran) (ok bool) {
 	if isNgLength(r) || isNgSuffix(r) || isNgRead(r) || isNgSubStr(r) || isNgRegex(r) {
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
 var ngSubStrs = []string{
@@ -21,7 +20,7 @@ var ngSubStrs = []string{
 func isNgSubStr(r Tran) bool {
 	for _, sub := range ngSubStrs {
 		if strings.Contains(r.Word, sub) {
-			fmt.Println(r.Word)
+			// fmt.Println(r.Word)
 			return true
 		}
 	}
@@ -43,8 +42,8 @@ func isNgRegex(r Tran) bool {
 
 // 読みが3文字以下の項目を排除
 func isNgLength(r Tran) bool {
-	if len([]rune(r.Read)) <= 3 {
-		fmt.Println(r.Word)
+	if len([]rune(r.Read)) <= 2 {
+		// fmt.Println(r.Word)
 		return true
 	}
 	return false
@@ -71,29 +70,30 @@ func isNgSuffix(r Tran) bool {
 
 // 読み遊びの排除
 var ngReads = []string{
-	`ダイジョウブカ`,
-	`ミエタ`,
-	`イマ`,
 	`アリガトウゴザイマス`,
-	`オネガイシマス`,
-	`オーケー`,
-	`オキマシタ`,
-	`ムリ`,
-	`ムリデス`,
-	`オダイジニ`,
-	`ツウジョウエイギョウ`,
-	`キヅカナカッタ`,
-	`オワッタ`,
-	`オツカレサマデス`,
 	`イインジャネ`,
+	`イマ`,
+	`イラナイ`,
+	`オーケー`,
+	`オモイダシタ`,
+	`オキマシタ`,
+	`オダイジニ`,
+	`オツカレサマデス`,
+	`オネガイシマス`,
+	`オワッタ`,
+	`ガンメンキジョウ`,
+	`キヅカナカッタ`,
+	`ジャナイ`,
+	`ダイジョウブカ`,
+	`チガウ`,
+	`ツウジョウエイギョウ`,
+	`ドウシヨウモナイ`,
 	`ホア`,
 	`マウ`,
 	`ヤッタカ`,
-	`ジャナイ`,
-	`イラナイ`,
-	`チガウ`,
-	`オモイダシタ`,
-	`ドウシヨウモナイ`,
+	`ミエタ`,
+	`ムリ`,
+	`ムリデス`,
 }
 
 func isNgRead(r Tran) bool {

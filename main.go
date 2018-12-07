@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"strings"
 	"sync"
 )
 
@@ -38,12 +39,13 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-	fmt.Println(len(raws))
-	ts, err := process(raws)
+
+	// fmt.Println(len(raws))
+	_, err = process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(len(ts))
+	// fmt.Println(len(ts))
 }
 
 func process(raws Trans) (ts Trans, err error) {
@@ -76,7 +78,20 @@ func filter(r Tran) (t Tran, ok bool) {
 	if isNg(r) {
 		return r, false
 	}
-	return r, true
+	return convert(r), true
+}
+
+func convert(r Tran) Tran {
+	// "シリーズ"の除去
+	if strings.HasSuffix(r.Word, `シリーズ`) {
+		fmt.Println(r)
+		r.Word = r.Word[:len(r.Word)-12]
+		if strings.HasSuffix(r.Read, `シリーズ`) {
+			r.Read = r.Read[:len(r.Read)-12]
+		}
+		fmt.Println(r)
+	}
+	return r
 }
 
 // type Pair struct {
@@ -92,6 +107,3 @@ func filter(r Tran) (t Tran, ok bool) {
 // func replaceWordString(s string) string {
 // 	return ""
 // }
-
-// 括弧（半角・全角）に「生主」「生放送主」が入っている場合、
-// 読みに「
