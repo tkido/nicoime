@@ -117,14 +117,25 @@ func convert(r Tran) Tran {
 	}
 	r.Word = word
 	// 「カッコ……カッコトジル」等の除去
-	if reParenKana.MatchString(r.Read) {
-		if !reParenKanaNg.MatchString(r.Read) {
+	if strings.HasSuffix(r.Word, `)`) || strings.HasSuffix(r.Word, `）`) {
+		// 括弧で終わるものが対象
+		if strings.HasPrefix(r.Word, `(`) || strings.HasPrefix(r.Word, `（`) {
+			// 先頭が括弧の場合はそのまま
+		} else {
 			fmt.Println(r)
-			r.Read = reParenKana.ReplaceAllString(r.Read, ``)
 			r.Word = reParen.ReplaceAllString(r.Word, ``)
+			r.Read = reParenKana.ReplaceAllString(r.Read, ``)
 			fmt.Println(r)
 		}
 	}
+	// if reParenKana.MatchString(r.Read) {
+	// 	if !reParenKanaNg.MatchString(r.Read) {
+	// 		fmt.Println(r)
+	// 		r.Read = reParenKana.ReplaceAllString(r.Read, ``)
+	// 		r.Word = reParen.ReplaceAllString(r.Word, ``)
+	// 		fmt.Println(r)
+	// 	}
+	// }
 	return r
 }
 

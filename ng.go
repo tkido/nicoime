@@ -13,6 +13,7 @@ func isNg(r Tran) (ok bool) {
 }
 
 var ngSubStrs = []string{
+	`一覧`,
 	`生主`,
 	`生放送主`,
 }
@@ -53,7 +54,6 @@ func isNgLength(r Tran) bool {
 var ngSuffixes = []string{
 	`リンク`,
 	`リンク集`,
-	`一覧`,
 	`のサムネ画像集`,
 	`のお絵カキコ`,
 }
