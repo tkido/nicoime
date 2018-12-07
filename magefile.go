@@ -29,6 +29,7 @@ func Install() error {
 // Manage your deps, or running package managers.
 func Setup() error {
 	deps := []string{
+		"github.com/creasty/go-nkf",
 		"github.com/PuerkitoBio/goquery",
 	}
 	fmt.Println("Installing Deps...")

@@ -41,10 +41,14 @@ func isNgRegex(r Tran) bool {
 	return false
 }
 
-// 読みが3文字以下の項目を排除
+// 読みが2文字以下の項目を排除
 func isNgLength(r Tran) bool {
 	if len([]rune(r.Read)) <= 2 {
-		// fmt.Println(r.Word)
+		// fmt.Println(r)
+		return true
+	}
+	if len([]rune(r.Word)) == 0 {
+		// fmt.Println(r)
 		return true
 	}
 	return false
@@ -90,10 +94,10 @@ var ngReads = []string{
 	`ドウシヨウモナイ`,
 	`ホア`,
 	`マウ`,
-	`ヤッタカ`,
 	`ミエタ`,
 	`ムリ`,
 	`ムリデス`,
+	`ヤッタカ`,
 }
 
 func isNgRead(r Tran) bool {

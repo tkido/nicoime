@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
+
+	"github.com/creasty/go-nkf"
 )
 
 // ZB is zero byte struct
@@ -42,15 +44,30 @@ func main() {
 	// }
 
 	// fmt.Println(len(raws))
-	_, err = process(raws)
+	tm, count, err := process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ts := make([]Tran, 100000)
+	for _, t := range tm {
+		if !(count[t.Read] >= 2 && t.Redirect) {
+			ts = append(ts, t)
+		}
+	}
+	sort.SliceStable(ts, func(i, j int) bool {
+		return ts[i].Read < ts[j].Read
+	})
+
+	// for _, t := range ts {
+	// 	fmt.Println(t.Read)
+	// }
 	// fmt.Println(len(ts))
 }
 
-func process(raws Trans) (ts Trans, err error) {
+func process(raws Trans) (ts Trans, count map[string]int, err error) {
 	ts = make(Trans, 0)
+	count = make(map[string]int, 100000)
 
 	wg := sync.WaitGroup{}
 	q := make(chan ZB, runtime.NumCPU())
@@ -71,6 +88,7 @@ func process(raws Trans) (ts Trans, err error) {
 	}()
 	for t := range ch {
 		ts[t.Word] = t
+		count[t.Read]++
 	}
 	return
 }
@@ -79,10 +97,16 @@ func filter(r Tran) (t Tran, ok bool) {
 	if isNg(r) {
 		return r, false
 	}
-	return convert(r), true
+	r = convert(r)
+	if isNg(r) {
+		return r, false
+	}
+	return r, true
 }
 
 func convert(r Tran) Tran {
+	// 謎の記号の除去
+	r.Word = strings.Replace(r.Word, `̣`, ``, -1)
 	// 「シリーズ」の除去
 	if strings.HasSuffix(r.Word, `シリーズ`) {
 		r.Word = r.Word[:len(r.Word)-12]
@@ -122,20 +146,21 @@ func convert(r Tran) Tran {
 		if strings.HasPrefix(r.Word, `(`) || strings.HasPrefix(r.Word, `（`) {
 			// 先頭が括弧の場合はそのまま
 		} else {
-			fmt.Println(r)
 			r.Word = reParen.ReplaceAllString(r.Word, ``)
-			r.Read = reParenKana.ReplaceAllString(r.Read, ``)
-			fmt.Println(r)
+			if reParenKana.MatchString(r.Read) {
+				if !reParenKanaNg.MatchString(r.Read) {
+					r.Read = reParenKana.ReplaceAllString(r.Read, ``)
+				}
+			}
 		}
 	}
-	// if reParenKana.MatchString(r.Read) {
-	// 	if !reParenKanaNg.MatchString(r.Read) {
-	// 		fmt.Println(r)
-	// 		r.Read = reParenKana.ReplaceAllString(r.Read, ``)
-	// 		r.Word = reParen.ReplaceAllString(r.Word, ``)
-	// 		fmt.Println(r)
-	// 	}
-	// }
+	// ひらがなに変換
+	hira, err := nkf.Convert(r.Read, "-m0 -W -w --hiragana")
+	if err != nil {
+		// log.Printf("can't convert %s by nkf", r.Read)
+	} else {
+		r.Read = hira
+	}
 	return r
 }
 
@@ -144,17 +169,3 @@ var (
 	reParenKana   = regexp.MustCompile(`カッコ(.*?)(カッコ(トジル?)?)?$`)
 	reParenKanaNg = regexp.MustCompile(`カッコ(イイ|ワルイ|ク|ヨス)(.*?)(カッコ(トジル?)?)?$`)
 )
-
-// type Pair struct {
-// 	From, To string
-// }
-
-// var (
-// 	pairsForWord = []Pair{
-// 		{"シリーズ", ""},
-// 	}
-// )
-
-// func replaceWordString(s string) string {
-// 	return ""
-// }
