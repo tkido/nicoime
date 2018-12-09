@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"runtime"
@@ -8,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/creasty/go-nkf"
+	nkf "github.com/creasty/go-nkf"
 )
 
 // ZB is zero byte struct
@@ -43,13 +44,13 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	// fmt.Println(len(raws))
+	fmt.Println(len(raws))
 	tm, count, err := process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ts := make([]Tran, 100000)
+	ts := make([]Tran, 0, 100000)
 	for _, t := range tm {
 		if !(count[t.Read] >= 2 && t.Redirect) {
 			ts = append(ts, t)
@@ -62,7 +63,8 @@ func main() {
 	// for _, t := range ts {
 	// 	fmt.Println(t.Read)
 	// }
-	// fmt.Println(len(ts))
+	publish(ts)
+	fmt.Println(len(ts))
 }
 
 func process(raws Trans) (ts Trans, count map[string]int, err error) {
@@ -94,9 +96,9 @@ func process(raws Trans) (ts Trans, count map[string]int, err error) {
 }
 
 func filter(r Tran) (t Tran, ok bool) {
-	if isNg(r) {
-		return r, false
-	}
+	// if isNg(r) {
+	// 	return r, false
+	// }
 	r = convert(r)
 	if isNg(r) {
 		return r, false
