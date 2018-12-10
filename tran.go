@@ -4,6 +4,7 @@ package main
 type Tran struct {
 	Word     string
 	Read     string
+	Note     string
 	Redirect bool
 }
 

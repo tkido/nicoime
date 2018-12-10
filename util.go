@@ -66,7 +66,7 @@ func Load(path string, data *Trans) (err error) {
 		if err != nil {
 			return err
 		}
-		r := Tran{ss[0], ss[1], redirect}
+		r := Tran{ss[0], ss[1], "", redirect}
 		(*data)[r.Word] = r
 	}
 	return

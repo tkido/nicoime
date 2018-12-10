@@ -63,7 +63,7 @@ func download(url string, ch chan Tran) (err error) {
 
 		redirect := strings.HasSuffix(lines[2], `(リダイレクト)`)
 
-		ch <- Tran{word, read, redirect}
+		ch <- Tran{word, read, "", redirect}
 	})
 	return
 }

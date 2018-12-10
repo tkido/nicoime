@@ -45,20 +45,11 @@ func main() {
 	// }
 
 	fmt.Println(len(raws))
-	tm, count, err := process(raws)
+
+	ts, err := process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	ts := make([]Tran, 0, 100000)
-	for _, t := range tm {
-		if !(count[t.Read] >= 2 && t.Redirect) {
-			ts = append(ts, t)
-		}
-	}
-	sort.SliceStable(ts, func(i, j int) bool {
-		return ts[i].Read < ts[j].Read
-	})
 
 	// for _, t := range ts {
 	// 	fmt.Println(t.Read)
@@ -67,10 +58,7 @@ func main() {
 	fmt.Println(len(ts))
 }
 
-func process(raws Trans) (ts Trans, count map[string]int, err error) {
-	ts = make(Trans, 0)
-	count = make(map[string]int, 100000)
-
+func process(raws Trans) (ts []Tran, err error) {
 	wg := sync.WaitGroup{}
 	q := make(chan ZB, runtime.NumCPU())
 	ch := make(chan Tran)
@@ -88,10 +76,29 @@ func process(raws Trans) (ts Trans, count map[string]int, err error) {
 		wg.Wait()
 		close(ch)
 	}()
+	tm := make(Trans, 0)
 	for t := range ch {
-		ts[t.Word] = t
+		tm[t.Word] = t
+	}
+
+	count := make(map[string]int, 100000)
+	for _, t := range tm {
+		if note, ok := tm[t.Note]; ok {
+			if strings.HasSuffix(t.Read, note.Read) {
+				t.Read = t.Read[:len(t.Read)-len(note.Read)]
+			}
+		}
 		count[t.Read]++
 	}
+	ts = make([]Tran, 0, 100000)
+	for _, t := range tm {
+		if !(count[t.Read] >= 2 && t.Redirect) {
+			ts = append(ts, t)
+		}
+	}
+	sort.SliceStable(ts, func(i, j int) bool {
+		return ts[i].Read < ts[j].Read
+	})
 	return
 }
 
@@ -148,7 +155,10 @@ func convert(r Tran) Tran {
 		if strings.HasPrefix(r.Word, `(`) || strings.HasPrefix(r.Word, `（`) {
 			// 先頭が括弧の場合はそのまま
 		} else {
-			r.Word = reParen.ReplaceAllString(r.Word, ``)
+			if ss := reParen.FindStringSubmatch(r.Word); ss != nil {
+				r.Word = strings.Replace(r.Word, ss[0], "", 1)
+				r.Note = ss[2]
+			}
 			if reParenKana.MatchString(r.Read) {
 				if !reParenKanaNg.MatchString(r.Read) {
 					r.Read = reParenKana.ReplaceAllString(r.Read, ``)
@@ -167,7 +177,7 @@ func convert(r Tran) Tran {
 }
 
 var (
-	reParen       = regexp.MustCompile(`(\(|（).*?(\)|）)$`)
+	reParen       = regexp.MustCompile(`(\(|（)(.*?)(\)|）)$`)
 	reParenKana   = regexp.MustCompile(`カッコ(.*?)(カッコ(トジル?)?)?$`)
 	reParenKanaNg = regexp.MustCompile(`カッコ(イイ|ワルイ|ク|ヨス)(.*?)(カッコ(トジル?)?)?$`)
 )
