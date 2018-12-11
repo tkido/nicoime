@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"runtime"
@@ -27,35 +26,29 @@ var (
 )
 
 func main() {
-	err := Load(rawPath, &raws)
+	// err := Load(rawPath, &raws)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	cs, err := getCapitals()
 	if err != nil {
 		log.Fatal(err)
 	}
-	// cs, err := getCapitals()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// err = getRawData(cs)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = getRawData(cs)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// err = Save(rawPath, raws)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-
-	fmt.Println(len(raws))
 
 	ts, err := process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// for _, t := range ts {
-	// 	fmt.Println(t.Read)
-	// }
 	publish(ts)
-	fmt.Println(len(ts))
 }
 
 func process(raws Trans) (ts []Tran, err error) {
@@ -103,9 +96,6 @@ func process(raws Trans) (ts []Tran, err error) {
 }
 
 func filter(r Tran) (t Tran, ok bool) {
-	// if isNg(r) {
-	// 	return r, false
-	// }
 	r = convert(r)
 	if isNg(r) {
 		return r, false

@@ -7,8 +7,33 @@ import (
 	"time"
 )
 
+func publishHTML(ts []Tran) {
+	const path = `data/nicoime_latest.html`
+	f, err := os.Create(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	dt := time.Now().Format("2006年01月02日 15:04")
+	const tmpl = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>ニコニコ大百科IME辞書最新版データ</title>
+</head>
+<body>
+現在%s版。<br />
+登録単語数 %dです。<br />
+<a href='http://tkido.com/data/nicoime.zip'>nicoime.zipをダウンロードする。</a>
+</body>
+</html>`
+	html := fmt.Sprintf(tmpl, dt, len(ts))
+	f.WriteString(html)
+
+}
+
 func publishAtok(ts []Tran) {
-	const path = `data/atok_utf8.txt`
+	const path = `data/nicoime_atok_utf8.txt`
 	f, err := os.Create(path)
 	if err != nil {
 		return
@@ -35,7 +60,7 @@ func publishAtok(ts []Tran) {
 }
 
 func publishMs(ts []Tran) {
-	const path = `data/msime_utf8.txt`
+	const path = `data/nicoime_msime_utf8.txt`
 	f, err := os.Create(path)
 	if err != nil {
 		return
@@ -62,6 +87,7 @@ func publishMs(ts []Tran) {
 }
 
 func publish(ts []Tran) {
+	publishHTML(ts)
 	publishAtok(ts)
 	publishMs(ts)
 }

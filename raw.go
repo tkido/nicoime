@@ -54,10 +54,6 @@ func download(url string, ch chan Tran) (err error) {
 		word := li.Find(`a`).First().Text()
 
 		lines := strings.Split(li.Text(), "\n")
-		// for _, line := range lines {
-		// 	fmt.Printf("【%s】\n", line)
-		// }
-
 		tail := lines[1][len(word)+12:]
 		read := tail[:strings.Index(tail, ")")]
 

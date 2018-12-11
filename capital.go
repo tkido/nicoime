@@ -30,7 +30,10 @@ func getCapitals() (cs []Capital, err error) {
 			as := td.Find(`a`)
 			label := as.First().Text()
 			numS := as.Last().Text()
-			num, _ := strconv.Atoi(numS[1 : len(numS)-1])
+			num, err := strconv.Atoi(numS[1 : len(numS)-1])
+			if err != nil {
+				return
+			}
 			cs = append(cs, Capital{label, num})
 		})
 	})
