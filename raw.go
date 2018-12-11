@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"runtime"
 	"strings"
@@ -22,10 +23,10 @@ func getRawData(cs []Capital) (err error) {
 				q <- ZB{}
 				defer func() { <-q; wg.Done() }()
 				fmt.Printf("Downloading: %s\n", url)
-				// err := download(url, ch)
-				// if err != nil {
-				// 	log.Println(err)
-				// }
+				err := download(url, ch)
+				if err != nil {
+					log.Println(err)
+				}
 			}(url)
 		}
 	}
