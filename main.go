@@ -15,9 +15,8 @@ import (
 type ZB struct{}
 
 const (
-	unit     = 50
-	rawPath  = "data/raw.txt"
-	tranPath = "data/tran.txt"
+	unit    = 50
+	rawPath = "raw.txt"
 )
 
 var (
@@ -42,12 +41,10 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-
 	ts, err := process(raws)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	publish(ts)
 }
 

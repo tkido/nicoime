@@ -8,7 +8,7 @@ import (
 )
 
 func publishHTML(ts []Tran) {
-	const path = `data/nicoime_latest.html`
+	const path = `nicoime_latest.html`
 	f, err := os.Create(path)
 	if err != nil {
 		return
@@ -33,7 +33,7 @@ func publishHTML(ts []Tran) {
 }
 
 func publishAtok(ts []Tran) {
-	const path = `data/nicoime_atok_utf8.txt`
+	const path = `nicoime_atok_utf8.txt`
 	f, err := os.Create(path)
 	if err != nil {
 		return
@@ -60,7 +60,7 @@ func publishAtok(ts []Tran) {
 }
 
 func publishMs(ts []Tran) {
-	const path = `data/nicoime_msime_utf8.txt`
+	const path = `nicoime_msime_utf8.txt`
 	f, err := os.Create(path)
 	if err != nil {
 		return
