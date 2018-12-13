@@ -19,13 +19,6 @@ const (
 // If not set, running mage will list available targets
 var Default = Run
 
-// A custom install step if you need your bin someplace other than go/bin
-func Install() error {
-	mg.Deps(Build)
-	fmt.Println("Installing...")
-	return os.Rename("./MyApp", "/usr/bin/MyApp")
-}
-
 // Manage your deps, or running package managers.
 func Setup() error {
 	deps := []string{
