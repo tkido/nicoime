@@ -21,18 +21,22 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
+
 	cs, err := getCapitals()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	err = getRawData(cs)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// err = Save(rawPath, raws)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
+
 	ts, err := process(raws)
 	if err != nil {
 		log.Fatal(err)

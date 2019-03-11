@@ -23,7 +23,7 @@ func getCapitals() (cs []Capital, err error) {
 	if err != nil {
 		return
 	}
-	trs := doc.Find(`#main > div.left-box > div > table:nth-child(4) > tbody > tr`)
+	trs := doc.Find(`#main > div.st-box > div > table:nth-child(3) > tbody > tr`)
 	trs.Each(func(i int, tr *goquery.Selection) {
 		tds := tr.Find(`td`)
 		tds.Each(func(i int, td *goquery.Selection) {
