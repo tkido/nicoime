@@ -24,7 +24,7 @@ func publishHTML(ts []Tran) {
 <body>
 現在%s版。<br />
 登録単語数 %dです。<br />
-<a href='http://tkido.com/data/nicoime.zip'>nicoime.zipをダウンロードする。</a>
+<a href='nicoime.zip'>nicoime.zipをダウンロードする。</a>
 </body>
 </html>`
 	html := fmt.Sprintf(tmpl, dt, len(ts))
